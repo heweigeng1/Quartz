@@ -2,15 +2,11 @@
 using Quartz.Impl;
 using Quartz.Impl.Triggers;
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 
 namespace core
 {
-    public class QuartzHelper:IJob
+    public class QuartzHelper : IJob
     {
         public void Execute(IJobExecutionContext context)
         {
@@ -18,14 +14,21 @@ namespace core
         }
         public void star()
         {
+            //创建一个作业池
             ISchedulerFactory factory = new StdSchedulerFactory();
             IScheduler scheduler = factory.GetScheduler();
-            scheduler.Start();
-            IJobDetail job = JobBuilder.Create<QuartzHelper>().WithIdentity("QuartzHelper", "JobGroup1").Build();
+            //创建一个作业
+            IJobDetail job = JobBuilder.Create<QuartzHelper>().Build();
             //ITrigger trigger = TriggerBuilder.Create().StartNow().Build();
-            ITrigger trigger = new CronTriggerImpl("CronTrigger", "TriggerGroup1", "0 0 12 * * ?");
+            //新建一个触发器
+            //ITrigger trigger = (ICronTrigger)TriggerBuilder.Create().StartAt(DateTime.Now).EndAt(DateTime.Now.AddDays(1)).WithCronSchedule("1,10,14 1,10,20,25,26,33,54 * * * ? ").Build();
+            //定义一个触发器
+            ISimpleTrigger trigger = (ISimpleTrigger)TriggerBuilder.Create().StartAt(DateTime.Now).EndAt(DateTime.Now.AddDays(100))
+                                        .WithSimpleSchedule(x => x.WithIntervalInSeconds(3).WithRepeatCount(1000))
+                                        .Build();
             scheduler.ScheduleJob(job, trigger);
-            Thread.Sleep(1000*5);//延迟执行
+            scheduler.Start();
+            //Thread.Sleep(1000*5);//延迟执行
         }
     }
 }
